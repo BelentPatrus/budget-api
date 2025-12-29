@@ -1,0 +1,110 @@
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+############################################
+# Java / Spring Boot
+############################################
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+############################################
+# Maven
+############################################
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+############################################
+# IDEs
+############################################
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+############################################
+# OS files
+############################################
+.DS_Store
+Thumbs.db
+
+############################################
+# Spring Boot secrets
+############################################
+# Ignore ALL resources (contains passwords)
+src/main/resources/
+
+############################################
+# Environment files
+############################################
+.env
+.env.*
+*.env
+
+############################################
+# Logs
+############################################
+logs/
+*.log
+
+############################################
+# Test artifacts
+############################################
+test-output/
+surefire-reports/
+
+############################################
+# Misc
+############################################
+*.tmp
+*.swp
+*.bak
+*.old
+
+# Editor backup files
+*~
+
