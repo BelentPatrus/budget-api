@@ -1,6 +1,6 @@
 package com.budgetapp.budgetapi.controller;
 
-import com.budgetapp.budgetapi.model.Users;
+import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,13 +8,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.naming.AuthenticationException;
 import java.time.Duration;
 import java.util.Map;
 
@@ -53,7 +51,7 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<?> logout(@RequestBody Users user) {
         ResponseCookie cookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(false)       // true in prod (https)
@@ -70,6 +68,7 @@ public class UserController {
 
     @GetMapping("/auth/me")
     public ResponseEntity<?> me(Authentication auth) {
+        System.out.println(auth.getName());
         return ResponseEntity.ok(Map.of("username", auth.getName()));
     }
 

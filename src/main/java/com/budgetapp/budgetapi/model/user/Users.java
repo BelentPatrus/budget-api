@@ -1,4 +1,4 @@
-package com.budgetapp.budgetapi.model;
+package com.budgetapp.budgetapi.model.user;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

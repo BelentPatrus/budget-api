@@ -1,6 +1,7 @@
 package com.budgetapp.budgetapi.config;
 
 import com.budgetapp.budgetapi.service.MyUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,11 +46,18 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(customizer -> customizer
                                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                .requestMatchers("/register", "/login")
-                                .permitAll()
+                                .requestMatchers(HttpMethod.POST, "/login", "/logout", "/register").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/login", "/register").permitAll()
                                 .anyRequest().authenticated()
+                        )       .logout(logout -> logout
+                                .logoutUrl("/logout")
+                                .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpServletResponse.SC_OK))
+                                .deleteCookies("accessToken") // clears the JWT cookie
+                                .permitAll()
                         )
-//                .httpBasic(Customizer.withDefaults())
+                .exceptionHandling(e -> e
+                .authenticationEntryPoint((req, res, ex) -> res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

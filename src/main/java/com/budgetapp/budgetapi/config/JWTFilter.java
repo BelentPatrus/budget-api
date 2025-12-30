@@ -49,7 +49,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         // 2) Fallback to Authorization header for Postman/dev
-        if (token == null) {
+        if (token == null || token.isBlank()) {
             String authHeader = request.getHeader("Authorization");
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 token = authHeader.substring(7);
@@ -58,7 +58,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 3) If still no token, just continue (public endpoints will work,
         // protected endpoints will be handled by Spring Security)
-        if (token == null) {
+        if (token == null || token.isBlank()) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -95,12 +95,6 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
-        return path.equals("/login") || path.equals("/register");
     }
 
 

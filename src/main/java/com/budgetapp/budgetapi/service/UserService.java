@@ -1,6 +1,6 @@
 package com.budgetapp.budgetapi.service;
 
-import com.budgetapp.budgetapi.model.Users;
+import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;

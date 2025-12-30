@@ -1,4 +1,4 @@
-package com.budgetapp.budgetapi.model;
+package com.budgetapp.budgetapi.model.user;
 
 import lombok.AllArgsConstructor;
 import org.jspecify.annotations.Nullable;
