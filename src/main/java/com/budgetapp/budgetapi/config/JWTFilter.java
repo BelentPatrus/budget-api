@@ -34,6 +34,8 @@ public class JWTFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        System.out.println("JWT FILTER HIT: " + request.getMethod() + " " + request.getRequestURI());
+
 
         String token = null;
 

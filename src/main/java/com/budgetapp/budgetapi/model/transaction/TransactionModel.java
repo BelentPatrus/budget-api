@@ -2,8 +2,11 @@ package com.budgetapp.budgetapi.model.transaction;
 
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.model.enums.IncomeOrExpense;
+import com.budgetapp.budgetapi.service.dto.CreateTransactionDto;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -12,6 +15,8 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TransactionModel {
 
     @Id
@@ -51,5 +56,14 @@ public class TransactionModel {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private IncomeOrExpense incomeOrExpense;
+
+
+    public TransactionModel(CreateTransactionDto transactionDto, Users user) {
+        this.user = user;
+        this.description = transactionDto.getDescription();
+        this.amount = transactionDto.getAmount();
+        this.date = LocalDate.parse(transactionDto.getDate());
+        this.incomeOrExpense = transactionDto.getIncomeOrExpense().equalsIgnoreCase("INCOME") ? IncomeOrExpense.INCOME : IncomeOrExpense.EXPENSE;
+    }
 
 }

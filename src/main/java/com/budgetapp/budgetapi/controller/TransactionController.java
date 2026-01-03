@@ -6,16 +6,15 @@ import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.UserRepo;
 import com.budgetapp.budgetapi.service.TransactionService;
 import com.budgetapp.budgetapi.service.UserService;
+import com.budgetapp.budgetapi.service.dto.CreateTransactionDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -41,9 +40,26 @@ public class TransactionController {
         return service.getTransactions(user.getId());
     }
 
+    @DeleteMapping ("/transaction/{id}")
+    public void deleteTransaction(@AuthenticationPrincipal UserPrincipal principal, @PathVariable String id) {
+        Users user = verifyUser(principal);
+        service.deleteTransactions(user.getId(), Long.parseLong(id));
+    }
+
+
     @PostMapping("/transaction")
-    public TransactionModel addTransaction(@RequestBody TransactionModel transaction) {
-        return service.addTransaction(transaction);
+    public TransactionModel addTransaction(@AuthenticationPrincipal UserPrincipal principal,@RequestBody CreateTransactionDto transactionDto) {
+        Users user = verifyUser(principal);
+        return service.addTransaction(transactionDto, user);
+    }
+
+    private Users verifyUser(UserPrincipal principal){
+        String username = principal.getUsername();
+        Users user = userRepo.findByUsername(username);
+        if (user == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        return user;
     }
 
 }
