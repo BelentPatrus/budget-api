@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateTransactionDto {
+public class TransactionDto {
+    String id;
     String date;
     String description;
     String bucket;

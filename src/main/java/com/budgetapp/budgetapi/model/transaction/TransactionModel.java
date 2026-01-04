@@ -2,7 +2,7 @@ package com.budgetapp.budgetapi.model.transaction;
 
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.model.enums.IncomeOrExpense;
-import com.budgetapp.budgetapi.service.dto.CreateTransactionDto;
+import com.budgetapp.budgetapi.service.dto.TransactionDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -58,7 +58,7 @@ public class TransactionModel {
     private IncomeOrExpense incomeOrExpense;
 
 
-    public TransactionModel(CreateTransactionDto transactionDto, Users user) {
+    public TransactionModel(TransactionDto transactionDto, Users user) {
         this.user = user;
         this.description = transactionDto.getDescription();
         this.amount = transactionDto.getAmount();

@@ -5,16 +5,14 @@ import com.budgetapp.budgetapi.model.user.UserPrincipal;
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.UserRepo;
 import com.budgetapp.budgetapi.service.TransactionService;
-import com.budgetapp.budgetapi.service.UserService;
-import com.budgetapp.budgetapi.service.dto.CreateTransactionDto;
+import com.budgetapp.budgetapi.service.dto.TransactionDto;
+import com.budgetapp.budgetapi.util.UserVerify;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.net.http.HttpResponse;
 import java.util.List;
 
 @RestController
@@ -22,44 +20,35 @@ public class TransactionController {
 
     private final TransactionService service;
     private final UserRepo userRepo;
+    private final UserVerify userVerify;
 
     @Autowired
-    public TransactionController(TransactionService service, UserRepo userRepo) {
+    public TransactionController(TransactionService service, UserRepo userRepo, UserVerify userVerify) {
         this.service = service;
         this.userRepo = userRepo;
+        this.userVerify = userVerify;
     }
 
 
     @GetMapping("/transactions")
     public List<TransactionModel> getTransactions(@AuthenticationPrincipal UserPrincipal principal) {
-        String username = principal.getUsername();
-        Users user = userRepo.findByUsername(username);
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
+        Users user = userVerify.verifyUser(principal);
         return service.getTransactions(user.getId());
     }
 
     @DeleteMapping ("/transaction/{id}")
     public void deleteTransaction(@AuthenticationPrincipal UserPrincipal principal, @PathVariable String id) {
-        Users user = verifyUser(principal);
+        Users user = userVerify.verifyUser(principal);
         service.deleteTransactions(user.getId(), Long.parseLong(id));
     }
 
 
     @PostMapping("/transaction")
-    public TransactionModel addTransaction(@AuthenticationPrincipal UserPrincipal principal,@RequestBody CreateTransactionDto transactionDto) {
-        Users user = verifyUser(principal);
+    public TransactionDto addTransaction(@AuthenticationPrincipal UserPrincipal principal,@RequestBody TransactionDto transactionDto) {
+        Users user = userVerify.verifyUser(principal);
         return service.addTransaction(transactionDto, user);
     }
 
-    private Users verifyUser(UserPrincipal principal){
-        String username = principal.getUsername();
-        Users user = userRepo.findByUsername(username);
-        if (user == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        }
-        return user;
-    }
+
 
 }
