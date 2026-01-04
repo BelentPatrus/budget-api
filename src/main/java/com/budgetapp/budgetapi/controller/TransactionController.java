@@ -6,11 +6,15 @@ import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.UserRepo;
 import com.budgetapp.budgetapi.service.TransactionService;
 import com.budgetapp.budgetapi.service.dto.TransactionDto;
+import com.budgetapp.budgetapi.util.BankCSVParser;
 import com.budgetapp.budgetapi.util.UserVerify;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -19,14 +23,14 @@ import java.util.List;
 public class TransactionController {
 
     private final TransactionService service;
-    private final UserRepo userRepo;
     private final UserVerify userVerify;
+    private final BankCSVParser bankCSVParser;
 
     @Autowired
-    public TransactionController(TransactionService service, UserRepo userRepo, UserVerify userVerify) {
+    public TransactionController(TransactionService service, UserVerify userVerify, BankCSVParser bankCSVParser) {
         this.service = service;
-        this.userRepo = userRepo;
         this.userVerify = userVerify;
+        this.bankCSVParser = bankCSVParser;
     }
 
 
@@ -47,6 +51,27 @@ public class TransactionController {
     public TransactionDto addTransaction(@AuthenticationPrincipal UserPrincipal principal,@RequestBody TransactionDto transactionDto) {
         Users user = userVerify.verifyUser(principal);
         return service.addTransaction(transactionDto, user);
+    }
+
+    @PostMapping(
+            value = "/transactions/import",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<?> importTransactions(@RequestParam("file") MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body("File is empty");
+        }
+
+        // Optional: basic file type check
+        String name = (file.getOriginalFilename() == null) ? "" : file.getOriginalFilename().toLowerCase();
+        if (!name.endsWith(".csv")) {
+            return ResponseEntity.badRequest().body("Only .csv supported for now");
+        }
+
+        List<BankCSVParser.ImportedTransactionRow> rows = bankCSVParser.parse(file);
+
+        // For now return parsed rows (later you’ll save them)
+        return ResponseEntity.ok(rows);
     }
 
 
