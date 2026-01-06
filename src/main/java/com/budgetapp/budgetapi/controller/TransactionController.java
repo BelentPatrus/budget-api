@@ -24,13 +24,13 @@ public class TransactionController {
 
     private final TransactionService service;
     private final UserVerify userVerify;
-    private final BankCSVParser bankCSVParser;
+
 
     @Autowired
-    public TransactionController(TransactionService service, UserVerify userVerify, BankCSVParser bankCSVParser) {
+    public TransactionController(TransactionService service, UserVerify userVerify) {
         this.service = service;
         this.userVerify = userVerify;
-        this.bankCSVParser = bankCSVParser;
+
     }
 
 
@@ -67,10 +67,8 @@ public class TransactionController {
         if (!name.endsWith(".csv")) {
             return ResponseEntity.badRequest().body("Only .csv supported for now");
         }
+        List<BankCSVParser.ImportedTransactionRow>  rows = service.importTransactions(file);
 
-        List<BankCSVParser.ImportedTransactionRow> rows = bankCSVParser.parse(file);
-
-        // For now return parsed rows (later you’ll save them)
         return ResponseEntity.ok(rows);
     }
 

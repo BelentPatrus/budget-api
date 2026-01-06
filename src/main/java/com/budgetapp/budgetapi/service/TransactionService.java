@@ -6,11 +6,14 @@ import com.budgetapp.budgetapi.model.transaction.TransactionModel;
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.TransactionRepo;
 import com.budgetapp.budgetapi.service.dto.TransactionDto;
+import com.budgetapp.budgetapi.util.BankCSVParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -20,12 +23,14 @@ public class TransactionService {
     private final TransactionRepo repo;
     private final BucketService bucketService;
     private final BankAccountService bankAccountService;
+    private final BankCSVParser bankCSVParser;
 
     @Autowired
-    public TransactionService(TransactionRepo repo, BucketService bucketService, BankAccountService bankAccountService) {
+    public TransactionService(TransactionRepo repo, BucketService bucketService, BankAccountService bankAccountService, BankCSVParser bankCSVParser) {
         this.bucketService = bucketService;
         this.repo = repo;
         this.bankAccountService = bankAccountService;
+        this.bankCSVParser = bankCSVParser;
     }
 
     public List<TransactionModel> getTransactions(int userId) {
@@ -55,4 +60,10 @@ public class TransactionService {
         repo.delete(transaction);
 
     }
+
+    public List<BankCSVParser.ImportedTransactionRow> importTransactions(MultipartFile file) {
+        List<BankCSVParser.ImportedTransactionRow> rows = bankCSVParser.parse(file);
+        return rows;
+    }
+
 }

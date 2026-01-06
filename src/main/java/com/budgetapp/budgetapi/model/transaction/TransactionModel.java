@@ -17,6 +17,26 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        name = "transaction_model",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_tx_user_date_amount_desc",
+                        columnNames = {
+                                "user_id",
+                                "date",
+                                "amount",
+                                "description"
+                        }
+                )
+        },
+        indexes = {
+                @Index(
+                        name = "idx_tx_user_date",
+                        columnList = "user_id,date"
+                )
+        }
+)
 public class TransactionModel {
 
     @Id
