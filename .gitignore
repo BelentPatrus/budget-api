@@ -76,7 +76,9 @@ Thumbs.db
 # Spring Boot secrets
 ############################################
 # Ignore ALL resources (contains passwords)
-src/main/resources/
+src/main/resources/static
+src/main/resources/templates
+src/main/resources/application.properties
 
 ############################################
 # Environment files
