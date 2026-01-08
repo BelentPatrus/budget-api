@@ -1,7 +1,7 @@
 package com.budgetapp.budgetapi.model.transaction;
 
 import com.budgetapp.budgetapi.model.user.Users;
-import com.budgetapp.budgetapi.model.enums.IncomeOrExpense;
+import com.budgetapp.budgetapi.model.enums.TransactionType;
 import com.budgetapp.budgetapi.service.dto.TransactionDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -75,7 +75,7 @@ public class TransactionModel {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private IncomeOrExpense incomeOrExpense;
+    private TransactionType transactionType;
 
 
     public TransactionModel(TransactionDto transactionDto, Users user) {
@@ -83,7 +83,7 @@ public class TransactionModel {
         this.description = transactionDto.getDescription();
         this.amount = transactionDto.getAmount();
         this.date = LocalDate.parse(transactionDto.getDate());
-        this.incomeOrExpense = transactionDto.getIncomeOrExpense().equalsIgnoreCase("INCOME") ? IncomeOrExpense.INCOME : IncomeOrExpense.EXPENSE;
+        this.transactionType = transactionDto.getIncomeOrExpense().equalsIgnoreCase("INCOME") ? TransactionType.INCOME : TransactionType.EXPENSE;
     }
 
 }

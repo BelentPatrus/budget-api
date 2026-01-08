@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
@@ -21,6 +23,18 @@ public class BucketModel {
     )
     private Users user;
 
+
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(
+            name="bank_account_id",
+            nullable=false,
+            foreignKey=@ForeignKey(name="fk_bucket_bank_account")
+    )
+    private BankAccountModel bankAccount;
+
     @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal balance;
 }

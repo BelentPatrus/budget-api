@@ -1,13 +1,23 @@
 package com.budgetapp.budgetapi.model.transaction;
 
+import com.budgetapp.budgetapi.model.enums.CreditOrDebit;
 import com.budgetapp.budgetapi.model.user.Users;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Entity
 @Getter
 @Setter
+@Table(
+        name = "bank_account_model",
+        uniqueConstraints = @UniqueConstraint(
+                name = "uq_bank_account_user_name",
+                columnNames = {"user_id", "name"}
+        )
+)
 public class BankAccountModel {
 
     @Id
@@ -25,4 +35,10 @@ public class BankAccountModel {
     @Column(nullable = false)
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CreditOrDebit creditOrDebit;
+
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal balance;
 }
