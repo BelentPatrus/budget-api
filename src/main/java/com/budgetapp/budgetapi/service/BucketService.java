@@ -44,13 +44,21 @@ public class BucketService {
 
     public BucketDto addBucket(BucketDto bucketDto, Users user) {
         BucketModel bucketModel = new BucketModel();
-        BankAccountModel bankAccountModel = bankAccountRepo.findByNameAndUserId(bucketDto.getBankAccount(), user.getId());
+        BankAccountModel bankAccountModel;
+
+        if(bucketDto.getBankAccount() != null){
+            bankAccountModel = bankAccountRepo.findByNameAndUserId(bucketDto.getBankAccount(), user.getId());
+
+        }else{
+            bankAccountModel = bankAccountRepo.findByIdAndUserId(bucketDto.getBankAccountId(), user.getId());
+        }
         if(bankAccountModel == null) {
             return null;
         }
         bucketModel.setBankAccount(bankAccountModel);
         bucketModel.setName(bucketDto.getName());
         bucketModel.setUser(user);
+        bucketModel.setBalance(bucketDto.getBalance());
         bucketRepo.save(bucketModel);
         return bucketDto;
 

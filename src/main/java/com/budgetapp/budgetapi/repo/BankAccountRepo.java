@@ -11,4 +11,6 @@ public interface BankAccountRepo extends JpaRepository<BankAccountModel, Long> {
     BankAccountModel findByNameAndUserId(String name, Integer userId);
 
     List<BankAccountModel> findAllByUserId(Integer userId);
+
+    BankAccountModel findByIdAndUserId(long bankAccountId, Integer id);
 }
