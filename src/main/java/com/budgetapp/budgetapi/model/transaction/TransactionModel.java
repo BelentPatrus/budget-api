@@ -11,6 +11,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -59,7 +60,6 @@ public class TransactionModel {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(
             name = "bucket_id",
-            nullable = false,
             foreignKey = @ForeignKey(name = "fk_transaction_bucket")
     )
     private BucketModel bucket;
@@ -76,6 +76,10 @@ public class TransactionModel {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private TransactionType transactionType;
+
+    @Column(name = "transfer_group_id")
+    private UUID transferGroupId;
+
 
 
     public TransactionModel(TransactionDto transactionDto, Users user) {

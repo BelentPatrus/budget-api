@@ -1,6 +1,19 @@
 package com.budgetapp.budgetapi.service;
 
 
+//rules of the game:
+//
+//        income transaction    --> INCOME_RULE: income goes to a debit account & bucket (could be unallocated meta bucket)
+//
+//        expense transaction 	--> EXPENSE_DEBIT_RULE: if debit account, take out of bucket (could be unallocated meta bucket) and account
+//                              --> EPENSE_CREDIT_RULE: if credit account, no bucket just account
+//
+//        transfer transaction	--> debit to debit account: EXPENSE_DEBIT_RULE -> INCOME_RULE
+//                              --> debit to credit account: EXPENSE_DEBIT_RULE -> into account
+//                              --> credit to debit account: EPENSE_CREDIT_RULE -> into account
+//                              --> credit to credit account: EPENSE_CREDIT_RULE --> into account
+
+import com.budgetapp.budgetapi.model.enums.CreditOrDebit;
 import com.budgetapp.budgetapi.model.enums.TransactionType;
 import com.budgetapp.budgetapi.model.transaction.TransactionModel;
 import com.budgetapp.budgetapi.model.user.Users;
@@ -15,6 +28,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
+
+import static com.budgetapp.budgetapi.model.enums.TransactionType.EXPENSE;
+import static com.budgetapp.budgetapi.model.enums.TransactionType.INCOME;
 
 @Service
 public class TransactionService {
@@ -42,13 +58,45 @@ public class TransactionService {
         transaction.setDescription(transactionDto.getDescription());
         transaction.setAmount(transactionDto.getAmount());
         transaction.setDate(LocalDate.parse(transactionDto.getDate()));
-        transaction.setTransactionType(transactionDto.getIncomeOrExpense().equalsIgnoreCase("INCOME") ? TransactionType.INCOME : TransactionType.EXPENSE);
-        transaction.setBucket(bucketService.getBucket(transactionDto.getBucket(), user.getId()));
+        transaction.setTransactionType(transactionDto.getIncomeOrExpense().equalsIgnoreCase("INCOME") ? INCOME : EXPENSE);
+        if(transactionDto.getBucket() != null) {
+            transaction.setBucket(bucketService.getBucketById(transactionDto.getBucket(), user.getId()));
+        }
         transaction.setBankAccount(bankAccountService.getBankAccount(transactionDto.getAccount(), user.getId()));
         repo.save(transaction);
+        handleBalanceUpdates(transaction);
         transactionDto.setId(transaction.getId().toString());
         return transactionDto;
 
+    }
+
+    private void expenseOrIncomeDebitAccountRule(TransactionModel transaction){
+        if(transaction.getBucket() != null){
+            transaction.getBucket().setBalance(transaction.getBucket().getBalance().add(transaction.getAmount()));
+            bucketService.updateBucket(transaction.getBucket());
+        }
+        transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().add(transaction.getAmount()));
+        bankAccountService.updateBankAccount(transaction.getBankAccount());
+    }
+
+    private void expenseCreditRule(TransactionModel transaction){
+        transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().add(transaction.getAmount().abs()));
+        bankAccountService.updateBankAccount(transaction.getBankAccount());
+    }
+
+    private void handleBalanceUpdates(TransactionModel transaction) {
+        switch (transaction.getTransactionType()) {
+            case INCOME:
+                expenseOrIncomeDebitAccountRule(transaction);
+                break;
+            case EXPENSE:
+                if(transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
+                    expenseOrIncomeDebitAccountRule(transaction);
+                }else{
+                    expenseCreditRule(transaction);
+                }
+                break;
+        }
     }
 
     public void deleteTransactions(int userId, Long id ) {

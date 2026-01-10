@@ -37,6 +37,9 @@ public class BucketService {
                     BucketDto bucketDto = new BucketDto();
                     bucketDto.setName(bucket.getName());
                     bucketDto.setBankAccount(bucket.getBankAccount().getName());
+                    bucketDto.setBankAccountId(bucket.getBankAccount().getId());
+                    bucketDto.setId(bucket.getId());
+                    bucketDto.setBalance(bucket.getBalance());
                     return bucketDto;
                 })
                 .toList();
@@ -46,7 +49,7 @@ public class BucketService {
         BucketModel bucketModel = new BucketModel();
         BankAccountModel bankAccountModel;
 
-        if(bucketDto.getBankAccount() != null){
+        if(bucketDto.getBankAccount() != null && !bucketDto.getBankAccount().isEmpty()){
             bankAccountModel = bankAccountRepo.findByNameAndUserId(bucketDto.getBankAccount(), user.getId());
 
         }else{
@@ -63,5 +66,13 @@ public class BucketService {
         return bucketDto;
 
 
+    }
+
+    public BucketModel getBucketById(String bucket, Integer id) {
+        return bucketRepo.findByIdAndUserId(Long.parseLong(bucket), id);
+    }
+
+    public void updateBucket(BucketModel bucket) {
+        bucketRepo.save(bucket);
     }
 }

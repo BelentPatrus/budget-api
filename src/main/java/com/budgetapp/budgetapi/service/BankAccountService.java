@@ -68,4 +68,8 @@ public class BankAccountService {
         bankAccountRepo.save(bankAccountModel);
         return bankAccountDTO;
     }
+
+    public void updateBankAccount(BankAccountModel bankAccount) {
+        bankAccountRepo.save(bankAccount);
+    }
 }

@@ -15,4 +15,6 @@ public interface BucketRepo extends JpaRepository<BucketModel, Long> {
     List<BucketModel> findAllByUserId(Integer userId);
 
     List<BucketModel> findAllByBankAccountIdAndUserId(Long accountId, Integer userId);
+
+    BucketModel findByIdAndUserId(long l, Integer id);
 }
