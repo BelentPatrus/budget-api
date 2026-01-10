@@ -12,10 +12,10 @@ import java.util.List;
 @Repository
 public interface TransactionRepo extends JpaRepository<TransactionModel, Long> {
 
-    List<TransactionModel> findByUserId(Integer userId);
+    List<TransactionModel> findByUserId(Long userId);
 
 
-    TransactionModel findByIdAndUserId(Long id, int userId);
+    TransactionModel findByIdAndUserId(Long id, Long userId);
 
     Iterable<TransactionModel> findByDate(LocalDate date);
 }

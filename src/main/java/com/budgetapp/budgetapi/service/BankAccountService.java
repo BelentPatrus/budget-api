@@ -1,7 +1,6 @@
 package com.budgetapp.budgetapi.service;
 
 import com.budgetapp.budgetapi.model.transaction.BankAccountModel;
-import com.budgetapp.budgetapi.model.transaction.BucketModel;
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.BankAccountRepo;
 import com.budgetapp.budgetapi.repo.BucketRepo;
@@ -24,11 +23,11 @@ public class BankAccountService {
         this.bankAccountRepo = bankAccountRepo;
     }
 
-    public BankAccountModel getBankAccount(String name, Integer userId) {
+    public BankAccountModel getBankAccount(String name, Long userId) {
         return bankAccountRepo.findByNameAndUserId(name, userId);
     }
 
-    public List<BankAccountDTO> getBankAccounts(Integer userId) {
+    public List<BankAccountDTO> getBankAccounts(Long userId) {
         return bankAccountRepo.findAllByUserId(userId)
                 .stream()
                 .map(bucket -> {
@@ -42,7 +41,7 @@ public class BankAccountService {
                 .toList();
     }
 
-    public List<BucketDto> getBuckets(Integer userId, Long accountId) {
+    public List<BucketDto> getBuckets(Long userId, Long accountId) {
         return bucketRepo.findAllByBankAccountIdAndUserId(accountId, userId)
                 .stream()
                 .map(bucket -> {

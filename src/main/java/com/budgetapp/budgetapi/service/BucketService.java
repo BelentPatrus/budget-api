@@ -21,14 +21,14 @@ public class BucketService {
         this.bankAccountRepo = bankAccountRepo;
     }
 
-    public BucketModel getBucket(String bucketName, Integer userId) {
+    public BucketModel getBucket(String bucketName, Long userId) {
 
         return bucketRepo.findByNameAndUserId(bucketName, userId);
 
 
     }
 
-    public List<BucketDto> getBuckets(Integer userId) {
+    public List<BucketDto> getBuckets(Long userId) {
 
 
         return bucketRepo.findAllByUserId(userId)
@@ -68,7 +68,7 @@ public class BucketService {
 
     }
 
-    public BucketModel getBucketById(String bucket, Integer id) {
+    public BucketModel getBucketById(String bucket, Long id) {
         return bucketRepo.findByIdAndUserId(Long.parseLong(bucket), id);
     }
 

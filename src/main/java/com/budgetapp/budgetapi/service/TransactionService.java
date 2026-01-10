@@ -48,7 +48,7 @@ public class TransactionService {
         this.bankCSVParser = bankCSVParser;
     }
 
-    public List<TransactionModel> getTransactions(int userId) {
+    public List<TransactionModel> getTransactions(Long userId) {
         return repo.findByUserId(userId);
     }
 
@@ -99,7 +99,7 @@ public class TransactionService {
         }
     }
 
-    public void deleteTransactions(int userId, Long id ) {
+    public void deleteTransactions(Long userId, Long id ) {
         TransactionModel transaction = repo.findByIdAndUserId(id,userId);
         if (transaction == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
