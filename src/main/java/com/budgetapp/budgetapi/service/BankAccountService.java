@@ -7,8 +7,11 @@ import com.budgetapp.budgetapi.repo.BucketRepo;
 import com.budgetapp.budgetapi.service.dto.BankAccountDTO;
 import com.budgetapp.budgetapi.service.dto.BucketDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -70,5 +73,26 @@ public class BankAccountService {
 
     public void updateBankAccount(BankAccountModel bankAccount) {
         bankAccountRepo.save(bankAccount);
+    }
+
+    public void deleteBankAccount(Long userId, Long accountId) {
+        BankAccountModel bankAccount = bankAccountRepo.findByIdAndUserId(accountId, userId);
+        if (bankAccount == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        if(bankAccount.getBalance().compareTo(BigDecimal.ZERO) != 0){
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Account has buckets. Remove buckets first."
+            );
+        }
+        if(bucketRepo.findAllByBankAccountIdAndUserId(accountId, userId).size() != 0){
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Account balance must be zero before deletion"
+            );
+        }
+        bankAccountRepo.delete(bankAccount);
+
     }
 }

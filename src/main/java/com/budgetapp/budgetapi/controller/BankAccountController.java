@@ -42,4 +42,10 @@ public class BankAccountController {
         return service.addBankAccount(user, bankAccountDTO);
     }
 
+    @DeleteMapping("/bankaccount/{accountId}")
+    public void deleteBankAccount(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long accountId) {
+        Users user = userVerify.verifyUser(principal);
+        service.deleteBankAccount(user.getId(), accountId);
+    }
+
 }
