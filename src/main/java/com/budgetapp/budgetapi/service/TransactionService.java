@@ -12,7 +12,7 @@ package com.budgetapp.budgetapi.service;
 //                              --> debit to credit account: EXPENSE_DEBIT_RULE -> into account
 //                              --> credit to debit account: EPENSE_CREDIT_RULE -> into account
 //                              --> credit to credit account: EPENSE_CREDIT_RULE --> into account
-// transactions cannot be deleted only reverted..
+// transactions cannot be deleted only reverted.. and if bucket is delete or transaction is deleted, cannot be reverted
 
 import com.budgetapp.budgetapi.model.enums.CreditOrDebit;
 import com.budgetapp.budgetapi.model.enums.TransactionType;
@@ -100,43 +100,86 @@ public class TransactionService {
         }
     }
 
-    private void handleBalanceRevert(TransactionModel transaction) {
+//    private void handleBalanceRevert(TransactionModel transaction) {
+//        switch (transaction.getTransactionType()) {
+//            case INCOME:
+//                //subtract what was added
+//                if(transaction.getBucket() != null){
+//                    transaction.getBucket().setBalance(transaction.getBucket().getBalance().subtract(transaction.getAmount().abs()));
+//                    bucketService.updateBucket(transaction.getBucket());
+//                }
+//                transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
+//                bankAccountService.updateBankAccount(transaction.getBankAccount());
+//                break;
+//            case EXPENSE:
+//                if(transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
+//                    //add back what was subtracted
+//                    if(transaction.getBucket() != null){
+//                        transaction.getBucket().setBalance(transaction.getBucket().getBalance().add(transaction.getAmount().abs()));
+//                        bucketService.updateBucket(transaction.getBucket());
+//                    }
+//                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().add(transaction.getAmount().abs()));
+//                    bankAccountService.updateBankAccount(transaction.getBankAccount());
+//
+//                }else{
+//                    //subtract what was added
+//                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
+//                    bankAccountService.updateBankAccount(transaction.getBankAccount());
+//                }
+//                break;
+//        }
+//    }
+
+    private TransactionModel revertTransaction(TransactionModel transaction) {
+        TransactionModel newTransaction = new TransactionModel();
+        newTransaction.setUser(transaction.getUser());
+        newTransaction.setBankAccount(transaction.getBankAccount());
+        newTransaction.setBucket(transaction.getBucket());
+        newTransaction.setDescription("REVERTED: " + transaction.getDescription());
+        newTransaction.setDate(LocalDate.now());
         switch (transaction.getTransactionType()) {
             case INCOME:
                 //subtract what was added
-                if(transaction.getBucket() != null){
+                if (transaction.getBucket() != null) {
                     transaction.getBucket().setBalance(transaction.getBucket().getBalance().subtract(transaction.getAmount().abs()));
                     bucketService.updateBucket(transaction.getBucket());
                 }
                 transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
                 bankAccountService.updateBankAccount(transaction.getBankAccount());
+                transaction.setAmount(transaction.getAmount().negate());
+                transaction.setTransactionType(TransactionType.EXPENSE);
                 break;
             case EXPENSE:
-                if(transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
+                if (transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
                     //add back what was subtracted
-                    if(transaction.getBucket() != null){
+                    if (transaction.getBucket() != null) {
                         transaction.getBucket().setBalance(transaction.getBucket().getBalance().add(transaction.getAmount().abs()));
                         bucketService.updateBucket(transaction.getBucket());
                     }
                     transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().add(transaction.getAmount().abs()));
                     bankAccountService.updateBankAccount(transaction.getBankAccount());
+                    transaction.setAmount(transaction.getAmount().negate());
+                    transaction.setTransactionType(TransactionType.INCOME);
 
-                }else{
+                } else {
                     //subtract what was added
                     transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
                     bankAccountService.updateBankAccount(transaction.getBankAccount());
+                    transaction.setAmount(transaction.getAmount().negate());
+                    transaction.setTransactionType(TransactionType.INCOME);
                 }
                 break;
         }
+        return transaction;
     }
 
     public void deleteTransactions(Long userId, Long id ) {
         TransactionModel transaction = repo.findByIdAndUserId(id,userId);
-        handleBalanceRevert(transaction);
+        TransactionModel reverted = revertTransaction(transaction);
         if (transaction == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        repo.delete(transaction);
+        repo.save(reverted);
 
     }
 
