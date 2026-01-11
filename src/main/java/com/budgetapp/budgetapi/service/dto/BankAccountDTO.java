@@ -18,5 +18,6 @@ public class BankAccountDTO {
     private String name;
     private CreditOrDebit creditOrDebit;
     private BigDecimal balance;
+    private ActiveStatus status;
 
 }

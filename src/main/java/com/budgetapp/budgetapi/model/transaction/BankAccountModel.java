@@ -2,6 +2,7 @@ package com.budgetapp.budgetapi.model.transaction;
 
 import com.budgetapp.budgetapi.model.enums.CreditOrDebit;
 import com.budgetapp.budgetapi.model.user.Users;
+import com.budgetapp.budgetapi.service.dto.ActiveStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,4 +42,8 @@ public class BankAccountModel {
 
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal balance;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ActiveStatus status;
 }

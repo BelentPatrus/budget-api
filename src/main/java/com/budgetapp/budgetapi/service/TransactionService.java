@@ -12,6 +12,7 @@ package com.budgetapp.budgetapi.service;
 //                              --> debit to credit account: EXPENSE_DEBIT_RULE -> into account
 //                              --> credit to debit account: EPENSE_CREDIT_RULE -> into account
 //                              --> credit to credit account: EPENSE_CREDIT_RULE --> into account
+// transactions cannot be deleted only reverted..
 
 import com.budgetapp.budgetapi.model.enums.CreditOrDebit;
 import com.budgetapp.budgetapi.model.enums.TransactionType;
@@ -99,8 +100,39 @@ public class TransactionService {
         }
     }
 
+    private void handleBalanceRevert(TransactionModel transaction) {
+        switch (transaction.getTransactionType()) {
+            case INCOME:
+                //subtract what was added
+                if(transaction.getBucket() != null){
+                    transaction.getBucket().setBalance(transaction.getBucket().getBalance().subtract(transaction.getAmount().abs()));
+                    bucketService.updateBucket(transaction.getBucket());
+                }
+                transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
+                bankAccountService.updateBankAccount(transaction.getBankAccount());
+                break;
+            case EXPENSE:
+                if(transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
+                    //add back what was subtracted
+                    if(transaction.getBucket() != null){
+                        transaction.getBucket().setBalance(transaction.getBucket().getBalance().add(transaction.getAmount().abs()));
+                        bucketService.updateBucket(transaction.getBucket());
+                    }
+                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().add(transaction.getAmount().abs()));
+                    bankAccountService.updateBankAccount(transaction.getBankAccount());
+
+                }else{
+                    //subtract what was added
+                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
+                    bankAccountService.updateBankAccount(transaction.getBankAccount());
+                }
+                break;
+        }
+    }
+
     public void deleteTransactions(Long userId, Long id ) {
         TransactionModel transaction = repo.findByIdAndUserId(id,userId);
+        handleBalanceRevert(transaction);
         if (transaction == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

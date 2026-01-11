@@ -4,6 +4,7 @@ import com.budgetapp.budgetapi.model.transaction.BankAccountModel;
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.BankAccountRepo;
 import com.budgetapp.budgetapi.repo.BucketRepo;
+import com.budgetapp.budgetapi.service.dto.ActiveStatus;
 import com.budgetapp.budgetapi.service.dto.BankAccountDTO;
 import com.budgetapp.budgetapi.service.dto.BucketDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.util.List;
+
+// bank accounts cannot be deleted in db only soft deleted archived
 
 @Service
 public class BankAccountService {
@@ -33,12 +36,13 @@ public class BankAccountService {
     public List<BankAccountDTO> getBankAccounts(Long userId) {
         return bankAccountRepo.findAllByUserId(userId)
                 .stream()
-                .map(bucket -> {
+                .map(account -> {
                     BankAccountDTO dto = new BankAccountDTO();
-                    dto.setId(bucket.getId());
-                    dto.setName(bucket.getName());
-                    dto.setCreditOrDebit(bucket.getCreditOrDebit());
-                    dto.setBalance(bucket.getBalance());
+                    dto.setId(account.getId());
+                    dto.setName(account.getName());
+                    dto.setCreditOrDebit(account.getCreditOrDebit());
+                    dto.setBalance(account.getBalance());
+                    dto.setStatus(account.getStatus());
                     return dto;
                 })
                 .toList();
@@ -92,7 +96,8 @@ public class BankAccountService {
                     "Account balance must be zero before deletion"
             );
         }
-        bankAccountRepo.delete(bankAccount);
+        bankAccount.setStatus(ActiveStatus.ARCHIVED);
+        bankAccountRepo.save(bankAccount);
 
     }
 }
