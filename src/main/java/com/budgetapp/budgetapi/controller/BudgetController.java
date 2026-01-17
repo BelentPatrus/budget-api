@@ -46,6 +46,7 @@ public class BudgetController {
     @PostMapping("/budget")
     public BudgetDTO addBudget(@AuthenticationPrincipal UserPrincipal principal, @RequestBody BudgetDTO budgetDTO){
         Users user = userVerify.verifyUser(principal);
+        return budgetTargetModelService.addBudget(budgetDTO, user);
 
 
     }

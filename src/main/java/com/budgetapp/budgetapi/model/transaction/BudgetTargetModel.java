@@ -4,8 +4,7 @@ import com.budgetapp.budgetapi.model.enums.BudgetTargetType;
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.service.dto.BudgetDTO;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -18,6 +17,9 @@ import java.time.LocalDate;
                 columnNames = {"user_id", "type", "name"}
         )
 )
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class BudgetTargetModel {

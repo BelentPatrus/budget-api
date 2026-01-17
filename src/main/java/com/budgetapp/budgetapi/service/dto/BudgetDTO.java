@@ -13,11 +13,11 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BudgetDTO {
-
+    private Long periodId;
     private Long id;
     private String name;
-    private String type;
-    private String bucketName;
+    private BudgetTargetType type;
+    private Long bucketId;
     private BigDecimal planned;
 
 }
