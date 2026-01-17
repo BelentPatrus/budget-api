@@ -48,7 +48,7 @@ public class BankAccountService {
                 .toList();
     }
 
-    public List<BucketDto> getBuckets(Long userId, Long accountId) {
+    public List<BucketDto> getBuckets(Long accountId,Long userId) {
         return bucketRepo.findAllByBankAccountIdAndUserId(accountId, userId)
                 .stream()
                 .map(bucket -> {
@@ -71,6 +71,7 @@ public class BankAccountService {
         bankAccountModel.setCreditOrDebit(bankAccountDTO.getCreditOrDebit());
         bankAccountModel.setBalance(bankAccountDTO.getBalance());
         bankAccountModel.setUser(user);
+        bankAccountModel.setStatus(ActiveStatus.ACTIVE);
         bankAccountRepo.save(bankAccountModel);
         return bankAccountDTO;
     }

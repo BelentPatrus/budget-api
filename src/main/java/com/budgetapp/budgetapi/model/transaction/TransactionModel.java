@@ -4,15 +4,13 @@ import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.model.enums.TransactionType;
 import com.budgetapp.budgetapi.service.dto.TransactionDto;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Builder
 @Entity
 @Getter
 @Setter
@@ -87,7 +85,7 @@ public class TransactionModel {
         this.description = transactionDto.getDescription();
         this.amount = transactionDto.getAmount();
         this.date = LocalDate.parse(transactionDto.getDate());
-        this.transactionType = transactionDto.getIncomeOrExpense().equalsIgnoreCase("INCOME") ? TransactionType.INCOME : TransactionType.EXPENSE;
+        this.transactionType = transactionDto.getTransactionType();
     }
 
 }

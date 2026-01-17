@@ -33,7 +33,7 @@ public class BankAccountController {
     @GetMapping("/bankaccount/{accountId}/buckets")
     public List<BucketDto> getBuckets(@AuthenticationPrincipal UserPrincipal principal, @PathVariable Long accountId) {
         Users user = userVerify.verifyUser(principal);
-        return service.getBuckets(user.getId(), accountId);
+        return service.getBuckets(accountId,user.getId());
     }
 
     @PostMapping("/bankaccount")

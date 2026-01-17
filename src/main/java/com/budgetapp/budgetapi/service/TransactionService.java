@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class TransactionService {
         transaction.setDescription(transactionDto.getDescription());
         transaction.setAmount(transactionDto.getAmount());
         transaction.setDate(LocalDate.parse(transactionDto.getDate()));
-        transaction.setTransactionType(transactionDto.getIncomeOrExpense().equalsIgnoreCase("INCOME") ? INCOME : EXPENSE);
+        transaction.setTransactionType(transactionDto.getTransactionType());
         if(transactionDto.getBucket() != null) {
             transaction.setBucket(bucketService.getBucketById(transactionDto.getBucket(), user.getId()));
         }
@@ -97,80 +98,62 @@ public class TransactionService {
                     expenseCreditRule(transaction);
                 }
                 break;
+            case TRANSFER:
+                if(transaction.getAmount().compareTo(BigDecimal.ZERO) < 0) {
+                    if(transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
+                        expenseOrIncomeDebitAccountRule(transaction);
+                    }else{
+                        expenseCreditRule(transaction);
+                    }
+
+                }else{
+                    expenseOrIncomeDebitAccountRule(transaction);
+                }
+                break;
         }
     }
 
-//    private void handleBalanceRevert(TransactionModel transaction) {
-//        switch (transaction.getTransactionType()) {
-//            case INCOME:
-//                //subtract what was added
-//                if(transaction.getBucket() != null){
-//                    transaction.getBucket().setBalance(transaction.getBucket().getBalance().subtract(transaction.getAmount().abs()));
-//                    bucketService.updateBucket(transaction.getBucket());
-//                }
-//                transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
-//                bankAccountService.updateBankAccount(transaction.getBankAccount());
-//                break;
-//            case EXPENSE:
-//                if(transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
-//                    //add back what was subtracted
-//                    if(transaction.getBucket() != null){
-//                        transaction.getBucket().setBalance(transaction.getBucket().getBalance().add(transaction.getAmount().abs()));
-//                        bucketService.updateBucket(transaction.getBucket());
-//                    }
-//                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().add(transaction.getAmount().abs()));
-//                    bankAccountService.updateBankAccount(transaction.getBankAccount());
-//
-//                }else{
-//                    //subtract what was added
-//                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
-//                    bankAccountService.updateBankAccount(transaction.getBankAccount());
-//                }
-//                break;
-//        }
-//    }
-
-    private TransactionModel revertTransaction(TransactionModel transaction) {
+    private TransactionModel revertTransaction(TransactionModel t) {
         TransactionModel newTransaction = new TransactionModel();
-        newTransaction.setUser(transaction.getUser());
-        newTransaction.setBankAccount(transaction.getBankAccount());
-        newTransaction.setBucket(transaction.getBucket());
-        newTransaction.setDescription("REVERTED: " + transaction.getDescription());
+        newTransaction.setUser(t.getUser());
+        newTransaction.setBankAccount(t.getBankAccount());
+        newTransaction.setBucket(t.getBucket());
+        newTransaction.setDescription("REVERTED: " + t.getDescription());
         newTransaction.setDate(LocalDate.now());
-        switch (transaction.getTransactionType()) {
+        switch (t.getTransactionType()) {
             case INCOME:
                 //subtract what was added
-                if (transaction.getBucket() != null) {
-                    transaction.getBucket().setBalance(transaction.getBucket().getBalance().subtract(transaction.getAmount().abs()));
-                    bucketService.updateBucket(transaction.getBucket());
+                if (newTransaction.getBucket() != null) {
+                    newTransaction.getBucket().setBalance(newTransaction.getBucket().getBalance().subtract(t.getAmount().abs()));
+                    bucketService.updateBucket(newTransaction.getBucket());
                 }
-                transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
-                bankAccountService.updateBankAccount(transaction.getBankAccount());
-                transaction.setAmount(transaction.getAmount().negate());
-                transaction.setTransactionType(TransactionType.EXPENSE);
+                newTransaction.getBankAccount().setBalance(newTransaction.getBankAccount().getBalance().subtract(t.getAmount().abs()));
+                bankAccountService.updateBankAccount(newTransaction.getBankAccount());
+                newTransaction.setAmount(t.getAmount().negate());
+                newTransaction.setTransactionType(TransactionType.EXPENSE);
                 break;
             case EXPENSE:
-                if (transaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
+                if (newTransaction.getBankAccount().getCreditOrDebit() == CreditOrDebit.DEBIT) {
                     //add back what was subtracted
-                    if (transaction.getBucket() != null) {
-                        transaction.getBucket().setBalance(transaction.getBucket().getBalance().add(transaction.getAmount().abs()));
-                        bucketService.updateBucket(transaction.getBucket());
+                    if (newTransaction.getBucket() != null) {
+                        newTransaction.getBucket().setBalance(newTransaction.getBucket().getBalance().add(t.getAmount().abs()));
+                        bucketService.updateBucket(newTransaction.getBucket());
                     }
-                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().add(transaction.getAmount().abs()));
-                    bankAccountService.updateBankAccount(transaction.getBankAccount());
-                    transaction.setAmount(transaction.getAmount().negate());
-                    transaction.setTransactionType(TransactionType.INCOME);
+                    newTransaction.getBankAccount().setBalance(newTransaction.getBankAccount().getBalance().add(t.getAmount().abs()));
+                    bankAccountService.updateBankAccount(newTransaction.getBankAccount());
+                    newTransaction.setAmount(t.getAmount().negate());
+                    newTransaction.setTransactionType(TransactionType.INCOME);
 
                 } else {
                     //subtract what was added
-                    transaction.getBankAccount().setBalance(transaction.getBankAccount().getBalance().subtract(transaction.getAmount().abs()));
-                    bankAccountService.updateBankAccount(transaction.getBankAccount());
-                    transaction.setAmount(transaction.getAmount().negate());
-                    transaction.setTransactionType(TransactionType.INCOME);
+                    newTransaction.getBankAccount().setBalance(newTransaction.getBankAccount().getBalance().subtract(t.getAmount().abs()));
+                    bankAccountService.updateBankAccount(newTransaction.getBankAccount());
+                    newTransaction.setAmount(t.getAmount().negate());
+                    newTransaction.setTransactionType(TransactionType.INCOME);
                 }
                 break;
         }
-        return transaction;
+        return newTransaction;
     }
 
     public void deleteTransactions(Long userId, Long id ) {
@@ -184,8 +167,7 @@ public class TransactionService {
     }
 
     public List<BankCSVParser.ImportedTransactionRow> importTransactions(MultipartFile file) {
-        List<BankCSVParser.ImportedTransactionRow> rows = bankCSVParser.parse(file);
-        return rows;
+        return bankCSVParser.parse(file);
     }
 
 }

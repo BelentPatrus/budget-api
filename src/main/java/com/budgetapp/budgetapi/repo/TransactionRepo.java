@@ -17,5 +17,5 @@ public interface TransactionRepo extends JpaRepository<TransactionModel, Long> {
 
     TransactionModel findByIdAndUserId(Long id, Long userId);
 
-    Iterable<TransactionModel> findByDate(LocalDate date);
+    Iterable<TransactionModel> findByDateAndUserId(LocalDate date, Long userId);
 }

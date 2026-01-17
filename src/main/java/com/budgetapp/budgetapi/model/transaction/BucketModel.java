@@ -2,11 +2,13 @@ package com.budgetapp.budgetapi.model.transaction;
 
 import com.budgetapp.budgetapi.model.user.Users;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Getter
 @Setter
