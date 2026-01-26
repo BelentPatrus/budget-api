@@ -5,9 +5,10 @@ import com.budgetapp.budgetapi.model.transaction.TransactionModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.net.http.HttpResponse;
+
 import java.time.LocalDate;
 import java.util.List;
+
 
 @Repository
 public interface TransactionRepo extends JpaRepository<TransactionModel, Long> {
@@ -18,4 +19,9 @@ public interface TransactionRepo extends JpaRepository<TransactionModel, Long> {
     TransactionModel findByIdAndUserId(Long id, Long userId);
 
     Iterable<TransactionModel> findByDateAndUserId(LocalDate date, Long userId);
+
+
+    List<TransactionModel> findByUserIdAndBucketIdAndDateBetween(
+            Long userId, Long bucketId, LocalDate startDate, LocalDate endDate
+    );
 }

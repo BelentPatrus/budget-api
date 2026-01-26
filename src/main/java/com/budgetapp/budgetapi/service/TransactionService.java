@@ -16,6 +16,8 @@ package com.budgetapp.budgetapi.service;
 
 import com.budgetapp.budgetapi.model.enums.CreditOrDebit;
 import com.budgetapp.budgetapi.model.enums.TransactionType;
+import com.budgetapp.budgetapi.model.transaction.BucketModel;
+import com.budgetapp.budgetapi.model.transaction.BudgetPeriod;
 import com.budgetapp.budgetapi.model.transaction.TransactionModel;
 import com.budgetapp.budgetapi.model.user.Users;
 import com.budgetapp.budgetapi.repo.TransactionRepo;
@@ -170,4 +172,8 @@ public class TransactionService {
         return bankCSVParser.parse(file);
     }
 
+    public List<TransactionModel> findTransactionsForBucketAndDateRange(BucketModel bucket, BudgetPeriod period) {
+
+        return repo.findByUserIdAndBucketIdAndDateBetween(bucket.getUser().getId(), bucket.getId(), period.getStartDate(), period.getEndDate());
+    }
 }

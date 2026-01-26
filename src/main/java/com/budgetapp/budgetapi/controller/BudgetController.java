@@ -48,7 +48,6 @@ public class BudgetController {
         Users user = userVerify.verifyUser(principal);
         return budgetTargetModelService.addBudget(budgetDTO, user);
 
-
     }
 
 }

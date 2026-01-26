@@ -19,5 +19,6 @@ public class BudgetDTO {
     private BudgetTargetType type;
     private Long bucketId;
     private BigDecimal planned;
+    private BigDecimal actual;
 
 }
